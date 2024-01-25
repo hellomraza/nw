@@ -1,4 +1,4 @@
-name: 'Build Android app'
+name: React Native CI/CD
 
 on:
   push:
@@ -6,21 +6,43 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: macos-latest
+  jest-test:
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install Java
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run Jest tests
+        run: yarn test
+
+  build-android-ios:
+    needs: jest-test
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        platform: [ios, android]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Java and Node.js
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: adopt
           cache: gradle
-
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -28,19 +50,32 @@ jobs:
           node-version: '18'
           cache: 'yarn'
 
-      - name: Run Yarn Install
-        run: |
-          npm i -g corepack
-          yarn install
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Install dependencies
+        run: yarn install
 
       - name: Build application
         run: |
-          cd android
-          ./gradlew assembleRelease
+          if [ "${{ matrix.platform }}" = "ios" ]; then
+            cd ios
+            pod install
+            cd ..
+            yarn run ios
+          elif [ "${{ matrix.platform }}" = "android" ]; then
+            cd android
+            ./gradlew assembleRelease
+          fi
 
       - name: Upload application
         uses: actions/upload-artifact@v2
         with:
           name: app
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: |
+            if [ "${{ matrix.platform }}" = "ios" ]; then
+              ios/build/Build/Products/Release-iphonesimulator/*.app
+            elif [ "${{ matrix.platform }}" = "android" ]; then
+              android/app/build/outputs/apk/release/app-release.apk
+            fi
           retention-days: 3
