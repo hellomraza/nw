@@ -22,6 +22,16 @@ jobs:
       - name: Coverage Report
         uses: ArtiomTr/jest-coverage-report-action@v2
 
+      - name: Checking Current Directory
+        run: pwd && ls -la
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage
+          retention-days: 3
+
   build-android-ios:
     needs: jest-test
     runs-on: macos-latest
@@ -57,7 +67,7 @@ jobs:
         run: echo "BUILD_NUMBER=${{ github.run_number }}"
 
       - name: Set Build Number
-        run: echo "BUILD_NUMBER=${{ github.run_number }}" >> .env
+        run: echo "\nBUILD_NUMBER=${{ github.run_number }}" >> .env
 
       - name: Print .env
         run: cat .env
