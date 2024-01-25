@@ -19,20 +19,8 @@ jobs:
           node-version: '18'
           cache: 'yarn'
 
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Run Jest tests
-        run: yarn test
-
-      - name: Echo Build Number
-        run: echo "BUILD_NUMBER=${{ github.run_number }}"
-
-      - name: Set Build Number
-        run: echo "BUILD_NUMBER=${{ github.run_number }}" >> .env
-
-      - name: Print .env
-        run: cat .env
+      - name: Coverage Report
+        uses: ArtiomTr/jest-coverage-report-action@v2
 
   build-android-ios:
     needs: jest-test
@@ -64,6 +52,15 @@ jobs:
 
       - name: Install dependencies
         run: yarn install
+
+      - name: Echo Build Number
+        run: echo "BUILD_NUMBER=${{ github.run_number }}"
+
+      - name: Set Build Number
+        run: echo "BUILD_NUMBER=${{ github.run_number }}" >> .env
+
+      - name: Print .env
+        run: cat .env
 
       - name: Build application
         run: |
