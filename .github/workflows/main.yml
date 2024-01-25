@@ -25,13 +25,22 @@ jobs:
       - name: Run Jest tests
         run: yarn test
 
+      - name: Echo Build Number
+        run: echo "BUILD_NUMBER=${{ github.run_number }}"
+
+      - name: Set Build Number
+        run: echo "BUILD_NUMBER=${{ github.run_number }}" >> .env
+
+      - name: Print .env
+        run: cat .env
+
   build-android-ios:
     needs: jest-test
     runs-on: macos-latest
 
     strategy:
       matrix:
-        platform: [ios, android]
+        platform: [android]
 
     steps:
       - name: Checkout repository
