@@ -1,0 +1,15 @@
+type DocumentTypes =
+  | 'Bids'
+  | 'Disclosure'
+  | 'Inspection Report'
+  | 'PAP'
+  | 'Plans'
+  | 'Rent Comps CMA'
+  | 'Rent Comps Map'
+  | 'Rent Comps Report'
+  | 'Sold Comps CMA'
+  | 'Sold Comps Map'
+  | 'Sold Comps Report'
+  | 'Survey'
+  | 'Tax Records'
+  | 'Other';
